@@ -14,7 +14,7 @@ const tabs = [
 
 function Tab({ to, label, icon: Icon, compact }) {
   return (
-    <NavLink to={to} className="group relative block">
+    <NavLink to={to} data-prox className="group relative block">
       {({ isActive }) => (
         <span className={`relative flex items-center ${compact ? 'flex-col gap-1 px-2 py-2 text-[11px]' : 'gap-3 px-4 py-3 text-[15px]'} rounded-2xl font-semibold transition ${isActive ? 'text-ink' : 'text-muted hover:text-ink'}`}>
           {isActive && <motion.span layoutId={compact ? 'tab-m' : 'tab-d'} className="absolute inset-0 rounded-2xl bg-white shadow-[0_6px_20px_-8px_rgba(16,38,31,.25)]" transition={{ type: 'spring', duration: 0.5, bounce: 0.18 }} />}

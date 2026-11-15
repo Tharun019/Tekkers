@@ -40,7 +40,7 @@ export function Button({ children, variant = 'primary', className = '', as: Comp
     quiet: 'glass-quiet text-ink hover:bg-white/80',
   }
   return (
-    <Comp className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-[15px] font-semibold transition ${styles[variant]} ${className}`} {...rest}>
+    <Comp data-prox className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-[15px] font-semibold transition ${styles[variant]} ${className}`} {...rest}>
       {children}
     </Comp>
   )

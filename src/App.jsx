@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Backdrop from './components/Backdrop.jsx'
+import ProximityField from './components/ProximityField.jsx'
 import AppShell from './components/AppShell.jsx'
 import Landing from './pages/Landing.jsx'
 import Setup from './pages/Setup.jsx'
@@ -13,6 +14,7 @@ export default function App() {
   return (
     <>
       <Backdrop />
+      <ProximityField />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/setup" element={<Setup />} />

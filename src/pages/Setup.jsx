@@ -3,10 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { Wordmark, BallIcon } from '../components/Ball.jsx'
 import { Card, Button } from '../components/ui.jsx'
+import { Lock } from 'lucide-react'
 import { levels } from '../data/sample.js'
+import { groups, levelNames } from '../data/positions.js'
 
 const steps = ['About you', 'Your target', 'Positions', 'Fitness', 'Equipment', 'Body']
-const positions = ['Goalkeeper', 'Centre-back', 'Full-back', 'Wing-back', 'CDM: ball-winner', 'CDM: holding', 'CM: box-to-box', 'CM: playmaker', 'CAM', 'Winger', 'Striker: target', 'Striker: poacher']
 const equipment = ['Football', 'Cones', 'Wall', 'Goal', 'Training partner', 'Dumbbells', 'Barbell', 'Pull-up bar', 'Bands', 'Skipping rope', 'Foam roller', 'Full gym']
 const areas = ['Knee', 'Ankle', 'Hamstring', 'Groin', 'Lower back', 'Shoulder']
 
@@ -44,11 +45,88 @@ function Slider({ label, value, onChange }) {
   )
 }
 
+function Positions({ level, picks, setPicks }) {
+  const [open, setOpen] = useState(picks[0]?.id ?? null)
+  const find = (id) => picks.find((p) => p.id === id)
+  const tapPosition = (id) => {
+    if (!find(id)) { setPicks([...picks, { id, role: null }]); setOpen(id) }
+    else if (open !== id) setOpen(id)
+    else { setPicks(picks.filter((p) => p.id !== id)); setOpen(null) }
+  }
+  const setRole = (id, role) => setPicks(picks.map((p) => (p.id === id ? { ...p, role: p.role === role ? null : role } : p)))
+  return (
+    <div>
+      <p className="mb-5 text-muted">
+        Pick every position you play. The first one counts as your main position.
+        {level === 0 ? ' Roles inside a position open from Academy upwards.' : ' Tap a picked position to choose your role in it.'}
+      </p>
+      <div className="space-y-5">
+        {groups.map((g) => {
+          const shown = g.positions.find((p) => p.id === open && find(p.id))
+          return (
+            <section key={g.name}>
+              <h2 className="mb-2 font-sans text-sm font-semibold tracking-normal text-muted">{g.name}</h2>
+              <div className="flex flex-wrap gap-2">
+                {g.positions.map((p) => {
+                  const pick = find(p.id)
+                  const main = picks[0]?.id === p.id
+                  return (
+                    <button key={p.id} onClick={() => tapPosition(p.id)} aria-pressed={!!pick} aria-expanded={open === p.id && !!pick}
+                      className={`min-h-12 rounded-2xl px-4 text-left ${pick ? 'bg-ink text-white' : 'glass-quiet text-ink hover:bg-white'} ${open === p.id && pick ? 'ring-2 ring-sky ring-offset-2 ring-offset-white' : ''}`}>
+                      <span className="flex items-center gap-2 text-[15px] font-semibold">
+                        {p.id}
+                        <span className={`font-normal ${pick ? 'text-white/70' : 'text-muted'}`}>{p.name}</span>
+                        {main && <span className="grad-bg rounded-full px-2 py-0.5 text-[11px] font-semibold text-white">Main</span>}
+                      </span>
+                      {pick?.role && level >= p.roles.find((r) => r.name === pick.role).from && <span className="block text-xs text-white/70">{pick.role}</span>}
+                    </button>
+                  )
+                })}
+              </div>
+              <AnimatePresence initial={false}>
+                {shown && (
+                  <motion.div key={shown.id} initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden">
+                    <div className="glass-quiet mt-3 rounded-3xl p-4">
+                      <p className="mb-3 text-sm font-semibold">Roles for {shown.name.toLowerCase()}</p>
+                      <ul className="grid gap-2 sm:grid-cols-2">
+                        {shown.roles.map((r) => {
+                          const locked = level < r.from
+                          const on = !locked && find(shown.id).role === r.name
+                          return (
+                            <li key={r.name}>
+                              <button disabled={locked} onClick={() => setRole(shown.id, r.name)} aria-pressed={on}
+                                className={`flex w-full items-start gap-3 rounded-2xl px-4 py-3 text-left ${on ? 'bg-sky text-white' : locked ? 'cursor-not-allowed bg-mist/60 text-muted' : 'bg-white/80 hover:bg-white'}`}>
+                                <span className="min-w-0 flex-1">
+                                  <span className="block text-[15px] font-semibold">{r.name}</span>
+                                  <span className={`block text-sm ${on ? 'text-white/80' : 'text-muted'}`}>{r.what}</span>
+                                </span>
+                                {locked && (
+                                  <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-2 py-1 text-xs font-semibold text-muted">
+                                    <Lock size={12} /> {levelNames[r.from]}
+                                  </span>
+                                )}
+                              </button>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </section>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export default function Setup() {
   const nav = useNavigate()
   const [step, setStep] = useState(0)
   const [level, setLevel] = useState(1)
-  const [pos, setPos] = useState(['CM: box-to-box', 'CAM'])
+  const [pos, setPos] = useState([{ id: 'CM', role: 'Box-to-box' }, { id: 'CAM', role: null }])
   const [eq, setEq] = useState(['Football', 'Cones', 'Wall'])
   const [sore, setSore] = useState(['Knee'])
   const [fit, setFit] = useState({ stamina: 6, speed: 6.5, touch: 7 })
@@ -76,10 +154,7 @@ export default function Setup() {
         </button>
       ))}
     </div>,
-    <div>
-      <p className="mb-4 text-muted">Pick every role you play. The first one you pick counts as your main position.</p>
-      <Chips options={positions} picked={pos} toggle={tog(pos, setPos)} />
-    </div>,
+    <Positions level={level} picks={pos} setPicks={setPos} />,
     <div className="space-y-6">
       <Slider label="How long can you play flat out before fading?" value={fit.stamina} onChange={(v) => setFit({ ...fit, stamina: v })} />
       <Slider label="Speed compared with players around you" value={fit.speed} onChange={(v) => setFit({ ...fit, speed: v })} />
