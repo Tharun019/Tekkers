@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 
-// Buttons swell as the pointer gets close, and the ones around lean in towards it,
+// The button under the pointer swells; the ones around it shrink a little and lean in towards it,
 // like the surface pulling in around something you press. On phones the same thing
 // happens around your finger while it is down.
-const REACH = 120
+const REACH = 210
 const SELECTOR = 'button:not([disabled]), [data-prox]'
 
 export default function ProximityField() {
@@ -21,13 +21,14 @@ export default function ProximityField() {
         const box = el.getBoundingClientRect()
         const cx = box.left + box.width / 2 - (el._tx || 0)
         const cy = box.top + box.height / 2 - (el._ty || 0)
-        let f = 0, tx = 0, ty = 0
+        let f = 0, tx = 0, ty = 0, near = 0
         if (point) {
           const dx = point.x - cx, dy = point.y - cy
           const gap = Math.hypot(Math.max(Math.abs(dx) - w / 2, 0), Math.max(Math.abs(dy) - h / 2, 0))
           f = Math.max(0, 1 - gap / REACH) ** 2
           const len = Math.hypot(dx, dy) || 1
-          const lean = 8 * f * Math.min(1, gap / 20)
+          near = Math.max(0, 1 - gap / 26)
+          const lean = 10 * f * (1 - near)
           tx = (dx / len) * lean
           ty = (dy / len) * lean
         }
@@ -35,7 +36,8 @@ export default function ProximityField() {
           if (el._on) { el.style.transform = ''; el.style.zIndex = ''; el._on = false; el._tx = el._ty = 0 }
           return
         }
-        const grow = Math.min(0.1, 11 / Math.max(w, h)) * f
+        const size = Math.max(w, h)
+        const grow = Math.min(0.1, 11 / size) * f * near - Math.min(0.07, 7 / size) * f * (1 - near)
         el.style.transform = `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${(1 + grow).toFixed(3)})`
         el.style.zIndex = f > 0.6 ? '2' : ''
         el._on = true; el._tx = tx; el._ty = ty
