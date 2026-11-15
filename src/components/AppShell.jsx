@@ -1,5 +1,5 @@
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'motion/react'
+import { motion } from 'motion/react'
 import { CalendarDays, Flame, HeartPulse, LineChart, Sun } from 'lucide-react'
 import { Wordmark } from './Ball.jsx'
 import { player } from '../data/sample.js'
@@ -49,11 +49,10 @@ export default function AppShell() {
           <Link to="/"><Wordmark /></Link>
           <Link to="/setup" aria-label="Your setup" className="grad-bg grid h-10 w-10 place-items-center rounded-full font-display text-lg font-bold text-white">{player.name[0]}</Link>
         </header>
-        <AnimatePresence mode="wait">
-          <motion.main key={pathname} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-            <Outlet />
-          </motion.main>
-        </AnimatePresence>
+        {/* Keyed so each screen fades in fresh. No exit animation: waiting on one left the next screen invisible. */}
+        <motion.main key={pathname} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
+          <Outlet />
+        </motion.main>
       </div>
 
       <nav aria-label="App sections" className="glass fixed inset-x-3 bottom-3 z-20 grid grid-cols-5 rounded-3xl p-1.5 md:hidden">
