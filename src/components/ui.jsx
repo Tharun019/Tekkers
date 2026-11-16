@@ -82,8 +82,7 @@ export function Ring({ value, max = 10, size = 148, stroke = 12, children, id = 
           cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`url(#${id})`} strokeWidth={stroke} strokeLinecap="round"
           strokeDasharray={c}
           initial={{ strokeDashoffset: c }}
-          whileInView={{ strokeDashoffset: c * (1 - frac) }}
-          viewport={{ once: true }}
+          animate={{ strokeDashoffset: c * (1 - frac) }}
           transition={{ duration: 1.4, ease }}
         />
       </svg>
@@ -101,7 +100,7 @@ export function Meter({ label, value, max, unit }) {
         <span className="tabular-nums text-muted"><b className="text-ink">{value}</b> of {max} {unit}</span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-mist">
-        <motion.div className="grad-bg h-full rounded-full" initial={{ width: 0 }} whileInView={{ width: `${pct}%` }} viewport={{ once: true }} transition={{ duration: 1.1, ease }} />
+        <motion.div className="grad-bg h-full rounded-full" initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 1.1, ease }} />
       </div>
     </div>
   )

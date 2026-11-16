@@ -5,6 +5,7 @@ import { Check, ChevronDown } from 'lucide-react'
 import ExerciseViz from '../components/ExerciseViz.jsx'
 import { Reveal, Card, Tag, Ring, Meter, Button, PageHead } from '../components/ui.jsx'
 import { player, session, food } from '../data/sample.js'
+import { useFoodDay } from '../lib/foodStore.js'
 
 const kindTone = (k) => (['Passing', 'First touch'].includes(k) ? 'green' : ['Speed', 'Agility', 'Jump power'].includes(k) ? 'blue' : 'plain')
 
@@ -46,6 +47,7 @@ export default function Today() {
   const [done, setDone] = useState(['wu'])
   const [checkin, setCheckin] = useState({ sleep: 7.5, sore: 3.2, energy: 7.4 })
   const [showCheckin, setShowCheckin] = useState(false)
+  const { eaten, water } = useFoodDay()
   const toggle = (id) => setDone(done.includes(id) ? done.filter((x) => x !== id) : [...done, id])
   const readiness = Math.round((3.5 * Math.min(1, checkin.sleep / 8) + 3.5 * (1 - checkin.sore / 10) + 3 * (checkin.energy / 10)) * 10) / 10
 
@@ -87,7 +89,7 @@ export default function Today() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-sm text-muted">Fuel today</p>
-                <p className="font-display text-4xl font-bold tabular-nums">{food.eaten.kcal} <span className="text-lg font-medium text-muted">of {food.target.kcal} kcal</span></p>
+                <p className="font-display text-4xl font-bold tabular-nums">{eaten.kcal} <span className="text-lg font-medium text-muted">of {food.target.kcal} kcal</span></p>
               </div>
               <Button as={Link} to="/app/food" variant="quiet">Log food</Button>
             </div>
@@ -96,8 +98,8 @@ export default function Today() {
               <p className="font-medium">Banana and peanut butter toast</p>
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Meter label="Protein" value={food.eaten.protein} max={food.target.protein} unit="g" />
-              <Meter label="Water" value={food.water.have} max={food.water.goal} unit="L" />
+              <Meter label="Protein" value={eaten.protein} max={food.target.protein} unit="g" />
+              <Meter label="Water" value={Math.round(water / 10) / 100} max={food.water.goal} unit="L" />
             </div>
           </Card>
         </Reveal>
